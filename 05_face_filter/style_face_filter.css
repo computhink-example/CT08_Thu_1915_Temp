@@ -1,0 +1,94 @@
+﻿:root {
+  --bg: #eef4f7;
+  --panel: #ffffff;
+  --ink: #163047;
+  --line: #c9d8e2;
+  --accent: #1f9db4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(145deg, #f4fbff, #e7f0f8);
+  color: var(--ink);
+}
+
+#app-root {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+#app-shell {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+#canvas-wrap {
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(9, 38, 64, 0.1);
+}
+
+#ui-panel {
+  width: 320px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 10px 24px rgba(9, 38, 64, 0.1);
+}
+
+.control-group {
+  margin-bottom: 14px;
+}
+
+.control-group label,
+.control-group .title {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.value-row {
+  font-size: 13px;
+  color: #44627a;
+  margin-top: 4px;
+}
+
+select,
+input[type="range"] {
+  width: 100%;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.note {
+  font-size: 12px;
+  color: #4a6f87;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+@media (max-width: 960px) {
+  #app-shell {
+    flex-direction: column;
+  }
+
+  #ui-panel {
+    width: 100%;
+  }
+}

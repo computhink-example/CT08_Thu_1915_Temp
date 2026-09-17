@@ -1,0 +1,53 @@
+Minecraft:
+1. To mine materials and craft items to defeat the Ender Dragon.
+2. WASD Movement, Left Click to Mine, Right Click to Place / Interact
+3. When you win you beat the game, when you die, you lose your items.
+
+Geometry Dash:
+
+What are the objects? 
+ - Main Character, Spikes, Platforms
+
+What are the player's actions?
+ - Jump
+
+What is the goal?
+ - Make it to the end of the level
+
+What causes game over?
+ - Hitting the Spikes or Obstacles
+
+How is progress shown? 
+ - Percentage of level completed
+
+
+For each phase:
+• Describe what it will look like (e.g. “Player moves from right to left”)
+• The Gameplay mechanics (e.g. “Press space to jump”)
+• Any constraints that we need to add in. (e.g. How many times the player can jump)
+
+1. Game Setup, Load Assets, Create Player
+ - Create canvas
+ - Create player variable and load image
+
+2. Build Level and Tile Maps
+ - Create and load tile map
+
+3. Auto-run and Jump
+ - Player is always moving right
+ - Player jumps on click / spacebar
+
+4. Obstacles, Orbs and Reset
+ - Adding more walls, spikes and orbs to the map
+ - When player collides with wall or spike, restart the game
+
+5. Game Start Screen and Level Clear
+ - Start and end menu
+ - Add a finish line to end the level
+
+6. Visual and Sound Effects
+ - Background music
+ - Death sound effect
+ - Movement particle effects
+ - Death particle effects
+ - Spawn particle effect
