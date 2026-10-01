@@ -19,9 +19,11 @@ let cameraX = sidePanelWidth;
 
 // x-position of the left panel.
 let leftPanelX = 0;
+let leftPanelCenterX = sidePanelWidth / 2;
 
 // x-position of the right panel.
 let rightPanelX = sidePanelWidth + cameraWidth;
+let rightPanelCenterX = rightPanelX + sidePanelWidth / 2;
 
 // ML Model
 let bodyPose;
@@ -31,6 +33,17 @@ let detectedPeople = [];
 
 // Game variables
 let skeletonColour;
+let player1Person;
+let player2Person;
+let player1Colour;
+let player2Colour;
+
+// Game assets
+let bothHandsUpImage;
+let leftHandUpImage;
+let rightHandUpImage;
+let handsOnHeadImage;
+let tPoseImage;
 
 // ====================================================
 // Preload
@@ -39,6 +52,13 @@ let skeletonColour;
 function preload(){
     // Load ml5 Body Pose model
     bodyPose = ml5.bodyPose("MoveNet", {flipped: true});
+
+    // Load assets
+    bothHandsUpImage = loadImage("assets/poseBattle_bothHandsUp.png");
+    leftHandUpImage = loadImage("assets/poseBattle_leftHandUp.png");
+    rightHandUpImage = loadImage("assets/poseBattle_rightHandUp.png");
+    handsOnHeadImage = loadImage("assets/poseBattle_handsOnHead.png");
+    tPoseImage = loadImage("assets/poseBattle_tpose.png");
 }
 
 // ====================================================
@@ -71,6 +91,8 @@ function setup() {
 
     // Set game variables
     skeletonColour = color(255, 255, 0); // color(r, g, b)
+    player1Colour = color(255, 0, 0);
+    player2Colour = color(0, 0, 255);
 }
 
 
@@ -90,8 +112,8 @@ function draw() {
     // Draw video
     image(video, cameraX, 0, cameraWidth, cameraHeight);
 
-    // Debug info
-    drawDetectionStatus();
+    // Show number of people detected
+    // drawDetectionStatus();
 
     // Test draw nose
     // if (detectedPeople.length > 0) {
@@ -103,8 +125,13 @@ function draw() {
     //     circle(x, y, 50);
     // }
 
-    // Draw skeletons
-    drawAllSkeletons();
+    // Draw skeleton on all detected people
+    //drawAllSkeletons();
+
+    // Find and draw player1 and player2
+    findPlayers();
+    drawPlayerSkeletons();
+    drawPlayerStatus();
 }
 
 // ====================================================
@@ -258,5 +285,83 @@ function drawAllSkeletons() {
         let person = detectedPeople[i];
 
         drawSkeleton(person, skeletonColour);
+    }
+}
+
+// Check the positions of each player and assign their team
+function findPlayers() {
+    // Reset who player1 and player2 is before checking
+    player1Person = null;
+    player2Person = null;
+
+    // Save closest distance from player1Center and player2Center
+    let closestPlayer1Distance = Number.MAX_VALUE;
+    let closestPlayer2Distance = Number.MAX_VALUE;
+
+    let player1CenterX = cameraWidth / 4 + cameraX;
+    let player2CenterX = cameraWidth / 4 * 3 + cameraX;
+
+    let cameraCenterX = cameraWidth / 2 + cameraX;
+
+    for (let i = 0; i < detectedPeople.length; i++) {
+        // Loop through detected people and get their nose position
+        let person = detectedPeople[i];
+        let nose = person.nose;
+
+        // Check if nose detected clearly
+        if (pointIsReady(nose)) {
+            // Offset nose position
+            let noseX = nose.x + cameraX;
+
+            // Check if person is on the left
+            if (noseX < cameraCenterX) {
+                // Calculate distance from player1Center
+                let distanceFromPlayer1Center = abs(noseX - player1CenterX);
+                if (distanceFromPlayer1Center < closestPlayer1Distance) {
+                    // Set closest person to be player1
+                    player1Person = person;
+                    closestPlayer1Distance = distanceFromPlayer1Center;
+                }
+            } else {
+                // If person is on the right
+                // Calculate distance from player2Center
+                let distanceFromPlayer2Center = abs(noseX - player2CenterX);
+                if (distanceFromPlayer2Center < closestPlayer2Distance) {
+                    // Set closest person to be player2
+                    player2Person = person;
+                    closestPlayer2Distance = distanceFromPlayer2Center;
+                }
+            }
+        }
+    }
+}
+
+// Draw player1 and player2 skeleton
+function drawPlayerSkeletons() {
+    // Check if player1 exists
+    if (player1Person != null) {
+        drawSkeleton(player1Person, player1Colour);
+    }
+    // Check if player2 exists
+    if (player2Person != null) {
+        drawSkeleton(player2Person, player2Colour);
+    }
+}
+
+// Draw info for player1 and player2 in the side panels
+function drawPlayerStatus() {
+    noStroke(); // Remove text outline
+    textSize(28);
+    
+    // Check if player1 exists
+    if (player1Person != null) {
+        fill(player1Colour); // Text colour
+        text("Detected", leftPanelCenterX, height / 2);
+    }
+
+    // Check if player2 exists
+    if (player2Person != null) {
+        fill(player2Colour); // Text colour
+        text("Detected", rightPanelCenterX, height / 2);
     }
 }
