@@ -37,6 +37,9 @@ let player1Person;
 let player2Person;
 let player1Colour;
 let player2Colour;
+let poseArray = [];
+let currentPose = null;
+
 
 // Game assets
 let bothHandsUpImage;
@@ -44,8 +47,6 @@ let leftHandUpImage;
 let rightHandUpImage;
 let handsOnHeadImage;
 let tPoseImage;
-let poseArray = [];
-let currentPose = null;
 
 // ====================================================
 // Preload
