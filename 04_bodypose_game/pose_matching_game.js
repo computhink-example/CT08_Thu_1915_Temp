@@ -412,6 +412,6 @@ function drawTargetPose(poseImage, x, y, size) {
     // Draw pose image
     image(poseImage, x, y, size, size); // (image, x pos, y pos, width, height)
 
-    // 
+    // Reset to default so camera video is unaffected
     imageMode(CORNER);
 }
