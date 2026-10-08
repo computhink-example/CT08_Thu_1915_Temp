@@ -418,8 +418,8 @@ function drawTargetPose(poseImage, x, y, size) {
 
 // Function to draw game UI
 function drawGameUI () {
-    // Check if there is a pose
-    
+    // Check if there is a current pose
+    if (currentPose === null)
 
     // Text settings
     fill(255, 220, 80);
