@@ -428,7 +428,7 @@ function drawGameUI() {
     }
 
     // Text settings
-    fill(255, 220, 80);
+    fill(125, 0, 125);
     textSize(28);
 
     // Draw current pose name
