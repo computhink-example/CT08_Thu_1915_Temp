@@ -40,7 +40,6 @@ let player2Colour;
 let poseArray = [];
 let currentPose = null;
 
-
 // Game assets
 let bothHandsUpImage;
 let leftHandUpImage;
