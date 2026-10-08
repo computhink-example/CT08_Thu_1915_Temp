@@ -728,8 +728,8 @@ function checkCurrentPose(person) {
         return checkBothHandsUp(person);
     } else if (currentPose.id === "leftHandUp") {
         return checkLeftHandUp(person);
-    } else if (currentPose.id === "bothHandsUp") {
-        return checkBothHandsUp(person);
+    } else if (currentPose.id === "rightHandUp") {
+        return checkRightHandUp(person);
     } else if (currentPose.id === "bothHandsUp") {
         return checkBothHandsUp(person);
     } else if (currentPose.id === "bothHandsUp") {
