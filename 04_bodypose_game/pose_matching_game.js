@@ -437,3 +437,8 @@ function drawGameUI() {
     // Draw current pose image
     drawTargetPose(currentPose.image, width / 2, height * 0.7, 230);
 }
+
+// This function triggers
+function keyPressed() {
+
+}
