@@ -371,6 +371,6 @@ function drawPlayerStatus() {
 // Function to set up info of each pose
 function setupPoseArray() {
     poseArray = [
-        // Object o
+        // Object with info for each pose
     ]
 }
