@@ -438,7 +438,7 @@ function drawGameUI() {
     drawTargetPose(currentPose.image, width / 2, height * 0.7, 230);
 }
 
-// This function triggers
+// This function is called when a key is pressed
 function keyPressed() {
 
 }
