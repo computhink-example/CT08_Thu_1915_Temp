@@ -410,5 +410,5 @@ function drawTargetPose(poseImage, x, y, size) {
     imageMode(CENTER);
 
     // Draw pose image
-    
+    image() // (image, )
 }
