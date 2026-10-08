@@ -403,3 +403,5 @@ function setupPoseArray() {
         }
     ]
 }
+
+// Function to draw pose image
