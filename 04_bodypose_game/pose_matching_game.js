@@ -98,7 +98,7 @@ function setup() {
 
     // Set up poses
     setupPoseArray();
-    currentPose = poseArray
+    currentPose = poseArray[0];
 }
 
 
