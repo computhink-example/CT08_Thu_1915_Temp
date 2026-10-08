@@ -713,4 +713,4 @@ function checkHandsOnHead(person) {
     }
 }
 
-// Function
+// Function to check player pose
