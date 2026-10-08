@@ -723,5 +723,5 @@ function checkCurrentPose(person) {
         return;
     }
 
-    currentPose 
+    // Call 
 }
