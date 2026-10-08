@@ -421,6 +421,7 @@ function drawGameUI () {
     // Check if there is a current pose
     if (currentPose === null || currentPose === undefined) {
         // Stop function
+        return;
     }
 
     // Text settings
