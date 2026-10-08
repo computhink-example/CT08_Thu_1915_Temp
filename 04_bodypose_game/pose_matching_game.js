@@ -95,6 +95,9 @@ function setup() {
     skeletonColour = color(255, 255, 0); // color(r, g, b)
     player1Colour = color(255, 0, 0);
     player2Colour = color(0, 0, 255);
+
+    // Set up poses
+    setU
 }
 
 
