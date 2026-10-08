@@ -394,8 +394,8 @@ function setupPoseArray() {
         },
         {
             name: "T Pose",
-            image: tpo,
-            id: "bothHandsUp"
+            image: tPoseImage,
+            id: "tPose"
         }
     ]
 }
