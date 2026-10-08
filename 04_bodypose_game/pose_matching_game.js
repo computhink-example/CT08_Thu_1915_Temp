@@ -714,3 +714,6 @@ function checkHandsOnHead(person) {
 }
 
 // Function to check player pose
+function checkCurrentPose(person) {
+    
+}
