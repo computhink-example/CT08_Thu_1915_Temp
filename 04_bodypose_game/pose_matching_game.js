@@ -447,13 +447,13 @@ function keyPressed() {
     if (key === "2") {
         currentPose = poseArray[1];
     }
-    if (key === "1") {
-        currentPose = poseArray[0];
+    if (key === "3") {
+        currentPose = poseArray[2];
     }
-    if (key === "1") {
-        currentPose = poseArray[0];
+    if (key === "4") {
+        currentPose = poseArray[3];
     }
-    if (key === "1") {
-        currentPose = poseArray[0];
+    if (key === "5") {
+        currentPose = poseArray[4];
     }
 }
