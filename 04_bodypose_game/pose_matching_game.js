@@ -726,8 +726,8 @@ function checkCurrentPose(person) {
     // Check current pose id then call check function
     if (currentPose.id === "bothHandsUp") {
         return checkBothHandsUp(person);
-    } else if (currentPose.id === "bothHandsUp") {
-        return checkBothHandsUp(person);
+    } else if (currentPose.id === "leftHandUp") {
+        return checkLeftHandUp(person);
     } else if (currentPose.id === "bothHandsUp") {
         return checkBothHandsUp(person);
     } else if (currentPose.id === "bothHandsUp") {
