@@ -37,6 +37,9 @@ let player1Person;
 let player2Person;
 let player1Colour;
 let player2Colour;
+let player1Score;
+let player2Score;
+let points
 let poseArray = [];
 let currentPose = null;
 
