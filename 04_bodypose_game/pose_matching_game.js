@@ -368,6 +368,7 @@ function drawPlayerStatus() {
     }
 }
 
+// Function to set up 
 function setupPoseArray() {
-    
+
 }
