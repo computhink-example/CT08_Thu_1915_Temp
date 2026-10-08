@@ -44,7 +44,7 @@ let leftHandUpImage;
 let rightHandUpImage;
 let handsOnHeadImage;
 let tPoseImage;
-let 
+let poseArray
 
 // ====================================================
 // Preload
