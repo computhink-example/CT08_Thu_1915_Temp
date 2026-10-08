@@ -424,6 +424,7 @@ function drawGameUI() {
     // Check if there is a current pose
     if (currentPose === null || currentPose === undefined) {
         // Stop function
+        console.log("No Current Pose");
         return;
     }
 
@@ -722,5 +723,5 @@ function checkCurrentPose(person) {
         return;
     }
 
-
+    
 }
