@@ -732,7 +732,7 @@ function checkCurrentPose(person) {
         return checkRightHandUp(person);
     } else if (currentPose.id === "handsOnHead") {
         return checkHandsOnHead(person);
-    } else if (currentPose.id === "bothHandsUp") {
-        return checkBothHandsUp(person);
+    } else if (currentPose.id === "tPose") {
+        return checkTPose(person);
     } 
 }
