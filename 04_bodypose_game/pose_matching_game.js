@@ -734,5 +734,7 @@ function checkCurrentPose(person) {
         return checkHandsOnHead(person);
     } else if (currentPose.id === "tPose") {
         return checkTPose(person);
-    } 
+    } else {
+        return false;
+    }
 }
