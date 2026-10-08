@@ -421,5 +421,5 @@ function drawGameUI () {
     // Text settings
     fill(255, 220, 80);
     textSize(28);
-    text(currentPose.name, wid); // (str, x pos, y pos)
+    text(currentPose.name, width / 2, ); // (str, x pos, y pos)
 }
