@@ -139,7 +139,7 @@ function draw() {
     drawPlayerSkeletons();
     drawPlayerStatus();
 
-    // Draw game user interface
+    // Draw game user interface information
     drawGameUI();
 }
 
