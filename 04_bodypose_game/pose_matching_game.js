@@ -423,5 +423,6 @@ function drawGameUI () {
     textSize(28);
     text(currentPose.name, width / 2, height * 0.1); // (str, x pos, y pos)
 
-    // Draw
+    // Draw current pose image
+    drawTargetPose
 }
