@@ -715,5 +715,9 @@ function checkHandsOnHead(person) {
 
 // Function to check player pose
 function checkCurrentPose(person) {
-    
+    // Check if there is a current pose
+    if (currentPose === null || currentPose === undefined) {
+        // Stop function
+        return;
+    }
 }
