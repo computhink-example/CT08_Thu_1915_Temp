@@ -457,3 +457,258 @@ function keyPressed() {
         currentPose = poseArray[4];
     }
 }
+
+// Checks whether both hands are clearly above the head.
+function checkBothHandsUp(person) {
+    let leftWrist = person.left_wrist;
+    let rightWrist = person.right_wrist;
+    let leftShoulder = person.left_shoulder;
+    let rightShoulder = person.right_shoulder;
+    let nose = person.nose;
+
+    if (pointIsReady(leftWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(leftShoulder) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightShoulder) === false) {
+        return false;
+    }
+
+    if (pointIsReady(nose) === false) {
+        return false;
+    }
+
+    let shoulderWidth = abs(leftShoulder.x - rightShoulder.x);
+    let margin = shoulderWidth * 0.25;
+
+    let leftHandHigh = false;
+    let rightHandHigh = false;
+
+    if (leftWrist.y < nose.y - margin) {
+        leftHandHigh = true;
+    }
+
+    if (rightWrist.y < nose.y - margin) {
+        rightHandHigh = true;
+    }
+
+    if (leftHandHigh === true && rightHandHigh === true) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+// Checks whether only the left hand is up.
+function checkLeftHandUp(person) {
+    let leftWrist = person.left_wrist;
+    let rightWrist = person.right_wrist;
+    let leftShoulder = person.left_shoulder;
+    let rightShoulder = person.right_shoulder;
+
+    if (pointIsReady(leftWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(leftShoulder) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightShoulder) === false) {
+        return false;
+    }
+
+    let shoulderWidth = abs(leftShoulder.x - rightShoulder.x);
+    let margin = shoulderWidth * 0.25;
+
+    let leftIsUp = false;
+    let rightIsDown = false;
+
+    if (leftWrist.y < leftShoulder.y - margin) {
+        leftIsUp = true;
+    }
+
+    if (rightWrist.y > rightShoulder.y + margin) {
+        rightIsDown = true;
+    }
+
+    if (leftIsUp === true && rightIsDown === true) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+// Checks whether only the right hand is up.
+function checkRightHandUp(person) {
+    let leftWrist = person.left_wrist;
+    let rightWrist = person.right_wrist;
+    let leftShoulder = person.left_shoulder;
+    let rightShoulder = person.right_shoulder;
+
+    if (pointIsReady(leftWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(leftShoulder) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightShoulder) === false) {
+        return false;
+    }
+
+    let shoulderWidth = abs(leftShoulder.x - rightShoulder.x);
+    let margin = shoulderWidth * 0.25;
+
+    let rightIsUp = false;
+    let leftIsDown = false;
+
+    if (rightWrist.y < rightShoulder.y - margin) {
+        rightIsUp = true;
+    }
+
+    if (leftWrist.y > leftShoulder.y + margin) {
+        leftIsDown = true;
+    }
+
+    if (rightIsUp === true && leftIsDown === true) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+// Checks whether both arms are stretched sideways like a T.
+function checkTPose(person) {
+    let leftWrist = person.left_wrist;
+    let rightWrist = person.right_wrist;
+    let leftShoulder = person.left_shoulder;
+    let rightShoulder = person.right_shoulder;
+
+    if (pointIsReady(leftWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(leftShoulder) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightShoulder) === false) {
+        return false;
+    }
+
+    let shoulderWidth = abs(leftShoulder.x - rightShoulder.x);
+    let levelMargin = shoulderWidth * 0.5;
+
+    let leftWristLevel = false;
+    let rightWristLevel = false;
+    let armsAreWide = false;
+
+    if (abs(leftWrist.y - leftShoulder.y) < levelMargin) {
+        leftWristLevel = true;
+    }
+
+    if (abs(rightWrist.y - rightShoulder.y) < levelMargin) {
+        rightWristLevel = true;
+    }
+
+    let wristDistance = abs(leftWrist.x - rightWrist.x);
+
+    if (wristDistance > shoulderWidth * 2) {
+        armsAreWide = true;
+    }
+
+    if (leftWristLevel === true && rightWristLevel === true && armsAreWide === true) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+// Checks whether both hands are near the head.
+function checkHandsOnHead(person) {
+    let leftWrist = person.left_wrist;
+    let rightWrist = person.right_wrist;
+    let leftShoulder = person.left_shoulder;
+    let rightShoulder = person.right_shoulder;
+    let nose = person.nose;
+
+    if (pointIsReady(leftWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightWrist) === false) {
+        return false;
+    }
+
+    if (pointIsReady(leftShoulder) === false) {
+        return false;
+    }
+
+    if (pointIsReady(rightShoulder) === false) {
+        return false;
+    }
+
+    if (pointIsReady(nose) === false) {
+        return false;
+    }
+
+    let shoulderWidth = abs(leftShoulder.x - rightShoulder.x);
+
+    let closeToHeadDistance = shoulderWidth * 0.8;
+    let headHeightMargin = shoulderWidth * 0.45;
+    let aboveShoulderMargin = shoulderWidth * 0.3;
+
+    let leftHandNearHead = false;
+    let rightHandNearHead = false;
+
+    let leftDistanceFromHead = dist(leftWrist.x, leftWrist.y, nose.x, nose.y);
+    let rightDistanceFromHead = dist(rightWrist.x, rightWrist.y, nose.x, nose.y);
+
+    if (
+        leftDistanceFromHead < closeToHeadDistance &&
+        abs(leftWrist.y - nose.y) < headHeightMargin &&
+        leftWrist.y < leftShoulder.y - aboveShoulderMargin
+    ) {
+        leftHandNearHead = true;
+    }
+
+    if (
+        rightDistanceFromHead < closeToHeadDistance &&
+        abs(rightWrist.y - nose.y) < headHeightMargin &&
+        rightWrist.y < rightShoulder.y - aboveShoulderMargin
+    ) {
+        rightHandNearHead = true;
+    }
+
+    if (leftHandNearHead === true && rightHandNearHead === true) {
+        return true;
+    } else {
+        return false;
+    }
+}
