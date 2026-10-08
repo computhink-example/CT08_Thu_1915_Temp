@@ -407,5 +407,5 @@ function setupPoseArray() {
 // Function to draw pose image
 function drawTargetPose(poseImage, x, y, size) {
     // Image alignment
-    textAlign
+    imageMode
 }
