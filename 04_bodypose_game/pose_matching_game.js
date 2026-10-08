@@ -139,6 +139,7 @@ function draw() {
     drawPlayerSkeletons();
     drawPlayerStatus();
 
+    // Draw game user interface
     drawGameUI();
 }
 
