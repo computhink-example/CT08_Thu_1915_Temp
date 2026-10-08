@@ -382,9 +382,9 @@ function drawPlayerStatus() {
 
         // Check if player2 matches the pose
         if (checkCurrentPose(player2Person) === true) {
-            text("MATCH!", leftPanelCenterX, height * 0.7);
+            text("MATCH!", rightPanelCenterX, height * 0.7);
         } else {
-            text("Not Matching!", leftPanelCenterX, height * 0.7);
+            text("Not Matching!", rightPanelCenterX, height * 0.7);
         }
     }
 }
