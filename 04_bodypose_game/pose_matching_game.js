@@ -377,6 +377,25 @@ function setupPoseArray() {
             image: bothHandsUpImage,
             id: "bothHandsUp"
         },
-        
+        {
+            name: "Both Hands Up",
+            image: bothHandsUpImage,
+            id: "bothHandsUp"
+        },
+        {
+            name: "Both Hands Up",
+            image: bothHandsUpImage,
+            id: "bothHandsUp"
+        },
+        {
+            name: "Both Hands Up",
+            image: bothHandsUpImage,
+            id: "bothHandsUp"
+        },
+        {
+            name: "Both Hands Up",
+            image: bothHandsUpImage,
+            id: "bothHandsUp"
+        },
     ]
 }
