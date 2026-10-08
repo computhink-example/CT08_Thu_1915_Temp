@@ -418,10 +418,12 @@ function drawTargetPose(poseImage, x, y, size) {
 
 // Function to draw game UI
 function drawGameUI () {
+    
+
     // Text settings
     fill(255, 220, 80);
     textSize(28);
-    
+
     // Draw current pose name
     text(currentPose.name, width / 2, height * 0.1); // (str, x pos, y pos)
 
