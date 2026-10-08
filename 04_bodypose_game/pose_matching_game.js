@@ -440,5 +440,8 @@ function drawGameUI() {
 
 // This function is called when a key is pressed
 function keyPressed() {
-
+    // Test other poses
+    if (key === "1") {
+        currentPose = poseArray[0];
+    }
 }
