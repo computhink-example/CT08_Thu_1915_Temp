@@ -416,3 +416,7 @@ function drawTargetPose(poseImage, x, y, size) {
     imageMode(CORNER);
 }
 
+// Function to draw game UI
+function drawGameUI () {
+    
+}
