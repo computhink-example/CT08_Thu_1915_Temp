@@ -97,7 +97,7 @@ function setup() {
     player2Colour = color(0, 0, 255);
 
     // Set up poses
-    setU
+    setupPoseArray();
 }
 
 
