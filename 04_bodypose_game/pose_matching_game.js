@@ -380,7 +380,7 @@ function setupPoseArray() {
         {
             name: "Left Hand Up",
             image: leftHandUpImage,
-            id: "bothHandsUp"
+            id: "leftHandUp"
         },
         {
             name: "Both Hands Up",
