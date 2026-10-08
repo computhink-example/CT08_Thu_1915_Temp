@@ -373,7 +373,9 @@ function setupPoseArray() {
     poseArray = [
         // Object with info for each pose
         {
-            
+            name: "Both Hands Up",
+            image: bothHandsUpImage,
+            id:
         }
     ]
 }
