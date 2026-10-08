@@ -37,9 +37,9 @@ let player1Person;
 let player2Person;
 let player1Colour;
 let player2Colour;
-let player1Score;
-let player2Score;
-let pointsForFirstMatch;
+let player1Score = 0;
+let player2Score = 0;
+let pointsForFirstMatch = 100;
 let poseArray = [];
 let currentPose = null;
 
