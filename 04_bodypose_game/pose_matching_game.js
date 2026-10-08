@@ -368,7 +368,9 @@ function drawPlayerStatus() {
         text("Detected", leftPanelCenterX, height / 2);
 
         // Check if player1 matches the pose
-        if (checkCurrentPose(player1Person) === true)
+        if (checkCurrentPose(player1Person) === true) {
+            
+        }
     }
 
     // Check if player2 exists
