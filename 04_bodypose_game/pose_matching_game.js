@@ -366,6 +366,8 @@ function drawPlayerStatus() {
     if (player1Person != null) {
         fill(player1Colour); // Text colour
         text("Detected", leftPanelCenterX, height / 2);
+
+        
     }
 
     // Check if player2 exists
