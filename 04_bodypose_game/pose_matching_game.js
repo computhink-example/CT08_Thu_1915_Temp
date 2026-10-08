@@ -720,4 +720,6 @@ function checkCurrentPose(person) {
         // Stop function
         return;
     }
+
+    
 }
