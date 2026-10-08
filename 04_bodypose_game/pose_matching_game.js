@@ -98,6 +98,7 @@ function setup() {
 
     // Set up poses
     setupPoseArray();
+    currentPose 
 }
 
 
