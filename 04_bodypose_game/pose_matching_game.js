@@ -418,5 +418,6 @@ function drawTargetPose(poseImage, x, y, size) {
 
 // Function to draw game UI
 function drawGameUI () {
+    // Text settings
     
 }
