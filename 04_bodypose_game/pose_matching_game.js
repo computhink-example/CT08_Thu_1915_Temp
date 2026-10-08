@@ -367,3 +367,7 @@ function drawPlayerStatus() {
         text("Detected", rightPanelCenterX, height / 2);
     }
 }
+
+function setupPoseArray() {
+    
+}
