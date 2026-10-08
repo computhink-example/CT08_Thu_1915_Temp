@@ -415,3 +415,4 @@ function drawTargetPose(poseImage, x, y, size) {
     // Reset to default so camera video is unaffected
     imageMode(CORNER);
 }
+
