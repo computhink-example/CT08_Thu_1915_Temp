@@ -712,3 +712,5 @@ function checkHandsOnHead(person) {
         return false;
     }
 }
+
+// Function
