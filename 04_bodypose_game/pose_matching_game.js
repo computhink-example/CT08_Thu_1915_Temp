@@ -138,6 +138,8 @@ function draw() {
     findPlayers();
     drawPlayerSkeletons();
     drawPlayerStatus();
+
+    drawGameUI();
 }
 
 // ====================================================
