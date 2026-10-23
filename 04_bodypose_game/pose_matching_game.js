@@ -37,11 +37,15 @@ let player1Person;
 let player2Person;
 let player1Colour;
 let player2Colour;
+let poseArray = [];
+let currentPose = null;
 let player1Score = 0;
 let player2Score = 0;
 let pointsForFirstMatch = 100;
-let poseArray = [];
-let currentPose = null;
+let player1Scored = false;
+let player2Scored = false;
+let totalRounds = 5;
+let roundNumber = 0;
 
 // Game assets
 let bothHandsUpImage;
@@ -101,7 +105,8 @@ function setup() {
 
     // Set up poses
     setupPoseArray();
-    currentPose = poseArray[0];
+    // currentPose = poseArray[0];
+    startRound();
 }
 
 
@@ -144,6 +149,12 @@ function draw() {
 
     // Draw game user interface information
     drawGameUI();
+    drawPlayerPanel("Player 1", leftPanelCenterX, player1Score, player1Colour);
+    drawPlayerPanel("Player 2", rightPanelCenterX, player2Score, player2Colour);
+    checkPlayerScores();
+    if (player1Scored === true || player2Scored === true) {
+        endRound();
+    }
 }
 
 // ====================================================
@@ -450,10 +461,15 @@ function drawGameUI() {
     textSize(28);
 
     // Draw current pose name
-    text(currentPose.name, width / 2, height * 0.1); // (str, x pos, y pos)
+    text(currentPose.name, width / 2, height * 0.4); // (str, x pos, y pos)
 
     // Draw current pose image
     drawTargetPose(currentPose.image, width / 2, height * 0.7, 230);
+
+    // Display round number
+    fill(255);
+    textSize(34);
+    text("Round " + (roundNumber + 1) + " / " + totalRounds, width / 2, 40);
 }
 
 // This function is called when a key is pressed
@@ -475,6 +491,7 @@ function keyPressed() {
         currentPose = poseArray[4];
     }
 }
+
 
 // Checks whether both hands are clearly above the head.
 function checkBothHandsUp(person) {
@@ -753,5 +770,56 @@ function checkCurrentPose(person) {
         return checkTPose(person);
     } else {
         return false;
+    }
+}
+
+// Function to display player score
+function drawPlayerPanel(playerName, panelCenterX, score, playerColour) {
+    noStroke();
+    fill(playerColour);
+    textSize(30);
+    text(playerName, panelCenterX, 70);
+    text("Score: " + score, panelCenterX, 120);
+}
+
+// Function to track scoring
+function checkPlayerScores() {
+    if (player1Person !== null && player1Scored === false && player2Scored === false) {
+        console.log("P1 Ready");
+        // If player match pose increment score
+        if (checkCurrentPose(player1Person) === true) {
+            player1Score += pointsForFirstMatch;
+            player1Scored = true;
+            console.log("P1 Scored");
+            return;
+        }
+    }
+    if (player2Person !== null && player1Scored === false && player2Scored === false) {
+        console.log("P2 Ready");
+        // If player match pose increment score
+        if (checkCurrentPose(player2Person) === true) {
+            player2Score += pointsForFirstMatch;
+            player2Scored = true;
+            console.log("P2 Scored");
+            return;
+        }
+    }
+}
+
+// Round system
+function startRound() {
+    currentPose = poseArray[roundNumber];
+    // Allow scoring each round
+    player1Scored = false;
+    player2Scored = false;
+    console.log("Round Start");
+}
+
+function endRound() {
+    // Start new round until total
+    if (roundNumber < totalRounds) {
+        console.log("Round End");
+        roundNumber += 1;
+        startRound();
     }
 }
