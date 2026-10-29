@@ -65,6 +65,7 @@ function setup() {
   textFont("monospace");
   createHeroArtwork();
   buildLevel();
+  bindPageControls();
   bindTouchControls();
   resetGame();
 }
@@ -98,6 +99,21 @@ function buildLevel() {
     floorSegment.stroke = "#70816a";
     floorSegments.push(floorSegment);
   }
+
+  const platformLayout = [
+    [520, FLOOR_TOP - 70, 170], [1090, FLOOR_TOP - 92, 190],
+    [1660, FLOOR_TOP - 65, 160], [2240, FLOOR_TOP - 96, 210],
+    [2820, FLOOR_TOP - 72, 180], [3410, FLOOR_TOP - 100, 220],
+    [4010, FLOOR_TOP - 70, 180], [4590, FLOOR_TOP - 94, 210],
+    [5100, FLOOR_TOP - 75, 190], [5650, FLOOR_TOP - 96, 210]
+  ];
+  for (const [platformX, platformY, platformWidth] of platformLayout) {
+    const platform = new Sprite(platformX, platformY, platformWidth, 18);
+    platform.collider = "static";
+    platform.color = "#68775e";
+    platform.stroke = "#c2a665";
+    floorSegments.push(platform);
+  }
 }
 
 function resetGame() {
@@ -111,13 +127,20 @@ function resetGame() {
   hitEffects = [];
   boss = null;
   nextWaveIndex = 0;
+  lastUpgradeWaveIndex = 0;
+  waveAnnouncementFrames = 0;
+  waveAnnouncementText = "";
   playerHealth = 6;
+  playerMaxHealth = 6;
+  weaponDamageBonus = 0;
   selectedWeapon = 0;
   playerFacing = 1;
   shotCooldown = 0;
   damageCooldown = 0;
   shieldFrames = 0;
   shieldCooldown = 0;
+  shieldCooldownBonus = 0;
+  hurtFlashFrames = 0;
   grounded = false;
   jumpWasDown = false;
 
@@ -131,6 +154,8 @@ function resetGame() {
   player.stroke = "#f1d29a";
   player.vel.x = 0;
   player.vel.y = 0;
+  world.timeScale = 1;
+  document.getElementById("upgradeChoices").hidden = true;
   gameState = "title";
 }
 
