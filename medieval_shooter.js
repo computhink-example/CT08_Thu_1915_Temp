@@ -265,6 +265,7 @@ function updatePlayer() {
 }
 
 function updateWaves() {
+  if (gameState !== "playing") return;
   if (waveAnnouncementFrames > 0) waveAnnouncementFrames--;
 
   if (nextWaveIndex > lastUpgradeWaveIndex && enemies.length === 0 && !boss) {
