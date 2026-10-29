@@ -170,6 +170,7 @@ function draw() {
     updateHostileProjectiles();
     updateHitEffects();
     updateCombat();
+    updateWaves();
   }
 
   camera.x = constrain(player.x, width / 2, LEVEL_LENGTH - width / 2);
@@ -182,9 +183,12 @@ function draw() {
   drawHostileProjectiles();
   drawHitEffects();
   drawPlayerShield();
+  drawWaveBanner();
   drawHud();
 
   if (gameState === "title") drawOverlay("THE EMBER KING", "Press ENTER or click to begin", "Defeat five enemy waves, then bring down the king.");
+  if (gameState === "upgrade") drawOverlay("WAVE CLEARED", "Choose an upgrade with 1, 2, or 3", "Your choice takes effect before the next wave.");
+  if (gameState === "paused") drawOverlay("PAUSED", "Press P, ESC, Enter, or the button to resume", "The battle is waiting.");
   if (gameState === "won") drawOverlay("THE KING HAS FALLEN", "Press ENTER or click to play again", "The relics are yours. The realm is free.");
   if (gameState === "lost") drawOverlay("YOUR QUEST ENDS HERE", "Press ENTER or click to try again", "The cursed army has claimed another champion.");
 }
@@ -260,6 +264,17 @@ function updatePlayer() {
 }
 
 function updateWaves() {
+  if (waveAnnouncementFrames > 0) waveAnnouncementFrames--;
+
+  if (nextWaveIndex > lastUpgradeWaveIndex && enemies.length === 0 && !boss) {
+    lastUpgradeWaveIndex = nextWaveIndex;
+    gameState = "upgrade";
+    world.timeScale = 0;
+    document.getElementById("upgradeChoices").hidden = false;
+    playTone(520, 0.18, "triangle");
+    return;
+  }
+
   if (nextWaveIndex < WAVE_CHECKPOINTS.length && enemies.length === 0 && player.x >= WAVE_CHECKPOINTS[nextWaveIndex]) {
     spawnWave();
   }
@@ -290,6 +305,9 @@ function spawnWave() {
     });
   }
   nextWaveIndex++;
+  waveAnnouncementText = `WAVE ${nextWaveIndex} INCOMING`;
+  waveAnnouncementFrames = 110;
+  playTone(390 + nextWaveIndex * 45, 0.24, "triangle");
 }
 
 function spawnBoss() {
@@ -297,6 +315,9 @@ function spawnBoss() {
   sprite.collider = "none";
   sprite.visible = false;
   boss = { sprite, healthValue: 135, maxHealth: 135, moveSpeed: 0.8, attackCooldown: 80, hitFlash: 0 };
+  waveAnnouncementText = "THE EMBER KING";
+  waveAnnouncementFrames = 150;
+  playTone(180, 0.5, "sawtooth");
 }
 
 function updateEnemies() {
