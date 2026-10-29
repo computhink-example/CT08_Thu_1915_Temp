@@ -737,10 +737,21 @@ function drawOverlay(title, action, subtitle) {
 
 function keyPressed(event) {
   const pressedKey = typeof key === "string" ? key.toLowerCase() : "";
-  const enterPressed = event.key === "Enter" || key === "Enter" || keyCode === 13;
+  const enterPressed = (event && event.key === "Enter") || key === "Enter" || keyCode === 13;
 
   if (enterPressed) {
-    if (gameState !== "playing") resetGameAndStart();
+    if (gameState === "paused") togglePause();
+    else if (gameState !== "playing" && gameState !== "upgrade") resetGameAndStart();
+    return false;
+  }
+
+  if (pressedKey === "p" || pressedKey === "escape" || keyCode === ESCAPE) {
+    togglePause();
+    return false;
+  }
+
+  if (gameState === "upgrade") {
+    if (key === "1" || key === "2" || key === "3") chooseUpgrade(Number(key) - 1);
     return false;
   }
 
@@ -754,16 +765,81 @@ function keyPressed(event) {
 function activateShield() {
   if (gameState !== "playing" || shieldCooldown > 0 || shieldFrames > 0) return;
   shieldFrames = SHIELD_DURATION;
-  shieldCooldown = SHIELD_COOLDOWN;
+  shieldCooldown = max(120, SHIELD_COOLDOWN - shieldCooldownBonus);
+}
+
+function togglePause() {
+  if (gameState === "playing") {
+    gameState = "paused";
+    world.timeScale = 0;
+  } else if (gameState === "paused") {
+    gameState = "playing";
+    world.timeScale = 1;
+  }
+  document.getElementById("pauseToggle").textContent = gameState === "paused" ? "Resume (P)" : "Pause (P)";
+}
+
+function chooseUpgrade(upgradeIndex) {
+  if (gameState !== "upgrade") return;
+
+  if (upgradeIndex === 0) {
+    playerMaxHealth = min(8, playerMaxHealth + 1);
+    playerHealth = min(playerMaxHealth, playerHealth + 2);
+  } else if (upgradeIndex === 1) {
+    weaponDamageBonus++;
+  } else if (upgradeIndex === 2) {
+    shieldCooldownBonus = min(120, shieldCooldownBonus + 45);
+  } else {
+    return;
+  }
+
+  document.getElementById("upgradeChoices").hidden = true;
+  gameState = "playing";
+  world.timeScale = 1;
+  playTone(680, 0.14, "triangle");
+}
+
+function bindPageControls() {
+  document.getElementById("pauseToggle").addEventListener("click", togglePause);
+  document.getElementById("soundToggle").addEventListener("click", () => {
+    soundMuted = !soundMuted;
+    const button = document.getElementById("soundToggle");
+    button.textContent = soundMuted ? "Sound: Off" : "Sound: On";
+    button.setAttribute("aria-pressed", String(soundMuted));
+  });
+  document.querySelectorAll("[data-upgrade]").forEach((button) => {
+    button.addEventListener("click", () => chooseUpgrade(Number(button.dataset.upgrade)));
+  });
+}
+
+function playTone(frequency, duration, waveform) {
+  if (soundMuted) return;
+  const AudioContextType = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextType) return;
+  if (!gameAudio) gameAudio = new AudioContextType();
+  if (gameAudio.state === "suspended") gameAudio.resume();
+
+  const oscillator = gameAudio.createOscillator();
+  const gain = gameAudio.createGain();
+  const startTime = gameAudio.currentTime;
+  oscillator.type = waveform;
+  oscillator.frequency.setValueAtTime(frequency, startTime);
+  gain.gain.setValueAtTime(0.055, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+  oscillator.connect(gain);
+  gain.connect(gameAudio.destination);
+  oscillator.start(startTime);
+  oscillator.stop(startTime + duration);
 }
 
 function mousePressed() {
-  if (gameState !== "playing") resetGameAndStart();
+  if (gameState === "title" || gameState === "won" || gameState === "lost") resetGameAndStart();
 }
 
 function resetGameAndStart() {
   resetGame();
   gameState = "playing";
+  playTone(440, 0.12, "triangle");
 }
 
 function bindTouchControls() {
@@ -774,7 +850,7 @@ function bindTouchControls() {
       touchInput[action] = true;
       button.classList.add("selected");
       button.setPointerCapture(event.pointerId);
-      if (action === "fire" && gameState !== "playing") resetGameAndStart();
+      if (action === "fire" && (gameState === "title" || gameState === "won" || gameState === "lost")) resetGameAndStart();
       if (action === "shield") activateShield();
     });
     const release = () => {
