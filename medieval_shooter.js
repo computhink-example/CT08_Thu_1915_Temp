@@ -206,6 +206,7 @@ function spawnWave() {
   for (let index = 0; index < 3; index++) {
     const sprite = new Sprite(entryX + index * 82, FLOOR_TOP - 25, 34, 48);
     sprite.collider = "none";
+    sprite.visible = false;
     enemies.push({
       sprite,
       healthValue: 3,
@@ -220,6 +221,7 @@ function spawnWave() {
 function spawnBoss() {
   const sprite = new Sprite(BOSS_X, FLOOR_TOP - 52, 94, 100);
   sprite.collider = "none";
+  sprite.visible = false;
   boss = { sprite, healthValue: 42, moveSpeed: 0.72, attackCooldown: 0 };
 }
 
