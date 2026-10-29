@@ -33,7 +33,7 @@ let touchInput = { left: false, right: false, jump: false, fire: false };
 
 function setup() {
   const gameCanvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-  gameCanvas.parent("gameCanvas");
+  document.getElementById("gameCanvas").appendChild(gameCanvas);
   world.gravity.y = 0.8;
   textFont("monospace");
   createHeroArtwork();
