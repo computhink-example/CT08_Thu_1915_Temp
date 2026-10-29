@@ -14,11 +14,11 @@ const WEAPONS = [
 
 const WAVE_CHECKPOINTS = [850, 1700, 2550, 3400, 4250];
 const WAVE_ROSTERS = [
-  ["raider", "raider", "hexer", "raider"],
-  ["raider", "wisp", "wisp", "hexer"],
-  ["hexer", "raider", "wisp", "raider", "hexer"],
-  ["wisp", "wisp", "hexer", "raider", "wisp"],
-  ["raider", "hexer", "wisp", "hexer", "raider", "wisp"]
+  ["raider", "raider", "hexer", "raider", "hexer", "raider"],
+  ["raider", "wisp", "wisp", "hexer", "raider", "wisp", "raider"],
+  ["hexer", "raider", "wisp", "raider", "hexer", "wisp", "raider", "hexer"],
+  ["wisp", "wisp", "hexer", "raider", "wisp", "hexer", "raider", "wisp", "hexer"],
+  ["raider", "hexer", "wisp", "hexer", "raider", "wisp", "hexer", "raider", "wisp", "hexer"]
 ];
 
 let player;
@@ -233,7 +233,7 @@ function spawnWave() {
     enemies.push({
       sprite,
       enemyType,
-      healthValue: enemyType === "raider" ? 4 : 3,
+      healthValue: enemyType === "raider" ? 7 : enemyType === "hexer" ? 6 : 5,
       moveSpeed: enemyType === "wisp" ? 1.55 : enemyType === "hexer" ? 0.9 : 1.35,
       attackCooldown: random(35, 90),
       floatOffset: random(TWO_PI),
@@ -263,8 +263,13 @@ function updateEnemies() {
       else if (abs(gap) < 205) enemy.sprite.x -= Math.sign(gap) * enemy.moveSpeed;
       enemy.sprite.y = FLOOR_TOP - enemy.sprite.h / 2;
     } else {
-      if (abs(gap) < 850) enemy.sprite.x += Math.sign(gap) * enemy.moveSpeed;
-      enemy.sprite.y = FLOOR_TOP - 145 + sin(frameCount * 0.07 + enemy.floatOffset) * 32;
+      const desiredGap = 285;
+      if (abs(gap) > desiredGap) {
+        const approachDistance = abs(gap) - desiredGap;
+        enemy.sprite.x += Math.sign(gap) * min(enemy.moveSpeed, approachDistance);
+      }
+      enemy.sprite.x = constrain(enemy.sprite.x, 35, LEVEL_LENGTH - 35);
+      enemy.sprite.y = FLOOR_TOP - 145 + sin(frameCount * 0.07 + enemy.floatOffset) * 24;
     }
 
     if (enemy.hitFlash > 0) enemy.hitFlash--;
@@ -319,10 +324,18 @@ function fireHostileProjectile(originX, originY, speed, color, damage, spreadAng
 
 function fireWeapon() {
   const weapon = WEAPONS[selectedWeapon];
+  const originX = player.x + playerFacing * 30;
+  const originY = player.y - 8;
+  const target = getTargetInFacingDirection();
+  const shotAngle = target
+    ? atan2(target.y - originY, target.x - originX)
+    : playerFacing < 0 ? PI : 0;
+
   projectiles.push({
-    posX: player.x + playerFacing * 32,
-    posY: player.y - 5,
-    horizontalSpeed: playerFacing * weapon.speed,
+    posX: originX,
+    posY: originY,
+    speedX: cos(shotAngle) * weapon.speed,
+    speedY: sin(shotAngle) * weapon.speed,
     damageValue: weapon.damage,
     colorValue: weapon.color,
     radiusValue: weapon.radius,
@@ -331,10 +344,27 @@ function fireWeapon() {
   shotCooldown = weapon.cooldown;
 }
 
+function getTargetInFacingDirection() {
+  let closestTarget = boss && (boss.sprite.x - player.x) * playerFacing > 0
+    ? { x: boss.sprite.x, y: boss.sprite.y, distance: dist(player.x, player.y, boss.sprite.x, boss.sprite.y) }
+    : null;
+
+  for (const enemy of enemies) {
+    if ((enemy.sprite.x - player.x) * playerFacing <= 0) continue;
+    const targetDistance = dist(player.x, player.y, enemy.sprite.x, enemy.sprite.y);
+    if (!closestTarget || targetDistance < closestTarget.distance) {
+      closestTarget = { x: enemy.sprite.x, y: enemy.sprite.y, distance: targetDistance };
+    }
+  }
+
+  return closestTarget;
+}
+
 function updateProjectiles() {
   for (let index = projectiles.length - 1; index >= 0; index--) {
     const projectile = projectiles[index];
-    projectile.posX += projectile.horizontalSpeed;
+    projectile.posX += projectile.speedX;
+    projectile.posY += projectile.speedY;
     projectile.remainingFrames--;
     let hitTarget = false;
 
