@@ -22,6 +22,11 @@ const WAVE_ROSTERS = [
   ["wisp", "wisp", "hexer", "raider", "wisp", "hexer", "raider", "wisp", "hexer"],
   ["raider", "hexer", "wisp", "hexer", "raider", "wisp", "hexer", "raider", "wisp", "hexer"]
 ];
+const UPGRADE_CHOICES = [
+  { title: "Field Dressing", detail: "Restore 2 vitality" },
+  { title: "Sharpened Runes", detail: "All weapons deal +1 damage" },
+  { title: "Quickened Ward", detail: "Shield cooldown -0.75 seconds" }
+];
 
 let player;
 let floorSegments = [];
@@ -33,6 +38,8 @@ let boss = null;
 let heroArtwork;
 let gameState = "title";
 let playerHealth = 6;
+let playerMaxHealth = 6;
+let weaponDamageBonus = 0;
 let selectedWeapon = 0;
 let playerFacing = 1;
 let nextWaveIndex = 0;
@@ -40,8 +47,15 @@ let shotCooldown = 0;
 let damageCooldown = 0;
 let shieldFrames = 0;
 let shieldCooldown = 0;
+let shieldCooldownBonus = 0;
 let grounded = false;
 let jumpWasDown = false;
+let lastUpgradeWaveIndex = 0;
+let waveAnnouncementFrames = 0;
+let waveAnnouncementText = "";
+let hurtFlashFrames = 0;
+let gameAudio = null;
+let soundMuted = false;
 let touchInput = { left: false, right: false, jump: false, fire: false };
 
 function setup() {
