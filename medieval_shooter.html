@@ -42,6 +42,23 @@
       .topline a { color: var(--gold); text-decoration: none; }
       .topline a:hover { text-decoration: underline; }
 
+      .page-actions { display: flex; gap: 8px; }
+
+      .page-actions button, .upgrade-choice {
+        border: 1px solid var(--edge);
+        border-radius: 4px;
+        background: var(--panel);
+        color: var(--ink);
+        cursor: pointer;
+        font: 12px monospace;
+        padding: 8px 10px;
+      }
+
+      .page-actions button:hover, .upgrade-choice:hover {
+        border-color: var(--gold);
+        background: #293a37;
+      }
+
       h1 {
         margin: 0;
         color: var(--gold);
@@ -79,6 +96,22 @@
 
       .instructions strong { color: var(--ink); font-weight: 600; }
 
+      #upgradeChoices[hidden] { display: none; }
+
+      #upgradeChoices {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        padding: 12px;
+        border-top: 1px solid var(--edge);
+        background: #111b20;
+      }
+
+      .upgrade-choice { min-height: 68px; text-align: left; }
+      .upgrade-choice strong, .upgrade-choice span { display: block; }
+      .upgrade-choice strong { color: var(--gold); margin-bottom: 6px; }
+      .upgrade-choice span { color: var(--muted); font-size: 11px; }
+
       #touchControls {
         display: none;
         grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -107,12 +140,21 @@
       @media (max-width: 700px) {
         body { padding: 14px 10px 24px; }
         #touchControls { display: grid; }
+        .topline { align-items: flex-start; flex-wrap: wrap; }
+        #upgradeChoices { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
     <main>
-      <nav class="topline"><a href="index.html">&larr; Home</a><span>AN EMBERBOUND QUEST</span></nav>
+      <nav class="topline">
+        <a href="index.html">&larr; Home</a>
+        <span>AN EMBERBOUND QUEST</span>
+        <div class="page-actions">
+          <button id="pauseToggle" type="button">Pause (P)</button>
+          <button id="soundToggle" type="button" aria-pressed="false">Sound: On</button>
+        </div>
+      </nav>
       <h1>Relics of the Ember King</h1>
       <p class="subtitle">Break through the cursed ranks. End the king's reign.</p>
       <section class="game-frame" aria-label="Relics of the Ember King game">
@@ -124,6 +166,12 @@
           <span><strong>1 / 2 / 3</strong> switch weapon</span>
           <span><strong>E</strong> shield</span>
           <span><strong>Enter</strong> start or restart</span>
+          <span><strong>P / Esc</strong> pause</span>
+        </div>
+        <div id="upgradeChoices" hidden>
+          <button class="upgrade-choice" type="button" data-upgrade="0"><strong>1 · Field Dressing</strong><span>Restore 2 vitality and increase max vitality by 1.</span></button>
+          <button class="upgrade-choice" type="button" data-upgrade="1"><strong>2 · Sharpened Runes</strong><span>Increase damage from all weapons by 1.</span></button>
+          <button class="upgrade-choice" type="button" data-upgrade="2"><strong>3 · Quickened Ward</strong><span>Reduce shield cooldown by 0.75 seconds.</span></button>
         </div>
       </section>
       <div id="touchControls" aria-label="Touch game controls">
