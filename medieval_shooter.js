@@ -5,6 +5,8 @@ const FLOOR_HEIGHT = 54;
 const FLOOR_TOP = CANVAS_HEIGHT - FLOOR_HEIGHT;
 const BOSS_GATE_X = 5150;
 const BOSS_X = 5900;
+const SHIELD_DURATION = 60;
+const SHIELD_COOLDOWN = 240;
 
 const WEAPONS = [
   { name: "Moonfire Bolt", cooldown: 18, damage: 2, speed: 10, color: "#87e5ff", radius: 7 },
@@ -36,6 +38,8 @@ let playerFacing = 1;
 let nextWaveIndex = 0;
 let shotCooldown = 0;
 let damageCooldown = 0;
+let shieldFrames = 0;
+let shieldCooldown = 0;
 let grounded = false;
 let jumpWasDown = false;
 let touchInput = { left: false, right: false, jump: false, fire: false };
@@ -98,6 +102,8 @@ function resetGame() {
   playerFacing = 1;
   shotCooldown = 0;
   damageCooldown = 0;
+  shieldFrames = 0;
+  shieldCooldown = 0;
   grounded = false;
   jumpWasDown = false;
 
@@ -136,6 +142,7 @@ function draw() {
   drawProjectiles();
   drawHostileProjectiles();
   drawHitEffects();
+  drawPlayerShield();
   drawHud();
 
   if (gameState === "title") drawOverlay("THE EMBER KING", "Press ENTER or click to begin", "Defeat five enemy waves, then bring down the king.");
@@ -206,6 +213,8 @@ function updatePlayer() {
 
   if (shotCooldown > 0) shotCooldown--;
   if (damageCooldown > 0) damageCooldown--;
+  if (shieldFrames > 0) shieldFrames--;
+  if (shieldCooldown > 0) shieldCooldown--;
 
   const firing = (mouseIsPressed && mouseButton === LEFT) || touchInput.fire;
   if (firing && shotCooldown === 0) fireWeapon();
@@ -459,7 +468,7 @@ function updateCombat() {
 }
 
 function hurtPlayer(damage, attackerX) {
-  if (damageCooldown > 0) return;
+  if (shieldFrames > 0 || damageCooldown > 0) return;
   playerHealth -= damage;
   createHitEffect(player.x, player.y, "#ff5d52", 10);
   damageCooldown = 55;
@@ -562,11 +571,21 @@ function drawHitEffects() {
   }
 }
 
+function drawPlayerShield() {
+  if (shieldFrames <= 0) return;
+  push();
+  noFill();
+  stroke("#8fe9ff");
+  strokeWeight(3);
+  ellipse(player.x, player.y, player.w + 22, player.h + 22);
+  pop();
+}
+
 function drawHud() {
   camera.off();
   noStroke();
   fill("#111b20e8");
-  rect(14, 14, 360, 76, 5);
+  rect(14, 14, 360, 98, 5);
   fill("#f0d18a");
   textSize(14);
   text(`VITALITY  ${"◆ ".repeat(max(0, playerHealth))}`, 28, 38);
@@ -575,6 +594,11 @@ function drawHud() {
   text(`WEAPON  ${WEAPONS[selectedWeapon].name}`, 28, 61);
   const progressText = boss ? "FINAL BOSS" : `WAVE ${max(1, nextWaveIndex)} / ${WAVE_CHECKPOINTS.length}`;
   text(progressText, 28, 80);
+  const shieldStatus = shieldFrames > 0
+    ? `ACTIVE  ${ceil(shieldFrames / 60)}s`
+    : shieldCooldown > 0 ? `COOLDOWN  ${ceil(shieldCooldown / 60)}s` : "READY  [E]";
+  fill(shieldFrames > 0 ? "#8fe9ff" : shieldCooldown > 0 ? "#a7afa7" : "#a6e09b");
+  text(`SHIELD  ${shieldStatus}`, 28, 101);
 
   if (boss) {
     const barWidth = 250;
@@ -616,7 +640,14 @@ function keyPressed() {
   if (key === "1") selectedWeapon = 0;
   if (key === "2") selectedWeapon = 1;
   if (key === "3") selectedWeapon = 2;
+  if (key.toLowerCase() === "e") activateShield();
   if (keyCode === 32) return false;
+}
+
+function activateShield() {
+  if (gameState !== "playing" || shieldCooldown > 0 || shieldFrames > 0) return;
+  shieldFrames = SHIELD_DURATION;
+  shieldCooldown = SHIELD_COOLDOWN;
 }
 
 function mousePressed() {
@@ -637,6 +668,7 @@ function bindTouchControls() {
       button.classList.add("selected");
       button.setPointerCapture(event.pointerId);
       if (action === "fire" && gameState !== "playing") resetGameAndStart();
+      if (action === "shield") activateShield();
     });
     const release = () => {
       touchInput[action] = false;
