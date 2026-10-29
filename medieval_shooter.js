@@ -635,12 +635,19 @@ function drawOverlay(title, action, subtitle) {
   camera.on();
 }
 
-function keyPressed() {
-  if (keyCode === ENTER && gameState !== "playing") resetGameAndStart();
+function keyPressed(event) {
+  const pressedKey = typeof key === "string" ? key.toLowerCase() : "";
+  const enterPressed = event.key === "Enter" || key === "Enter" || keyCode === 13;
+
+  if (enterPressed) {
+    if (gameState !== "playing") resetGameAndStart();
+    return false;
+  }
+
   if (key === "1") selectedWeapon = 0;
   if (key === "2") selectedWeapon = 1;
   if (key === "3") selectedWeapon = 2;
-  if (key.toLowerCase() === "e") activateShield();
+  if (pressedKey === "e") activateShield();
   if (keyCode === 32) return false;
 }
 
