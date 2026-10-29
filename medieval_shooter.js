@@ -13,11 +13,20 @@ const WEAPONS = [
 ];
 
 const WAVE_CHECKPOINTS = [850, 1700, 2550, 3400, 4250];
+const WAVE_ROSTERS = [
+  ["raider", "raider", "hexer", "raider"],
+  ["raider", "wisp", "wisp", "hexer"],
+  ["hexer", "raider", "wisp", "raider", "hexer"],
+  ["wisp", "wisp", "hexer", "raider", "wisp"],
+  ["raider", "hexer", "wisp", "hexer", "raider", "wisp"]
+];
 
 let player;
 let floorSegments = [];
 let enemies = [];
 let projectiles = [];
+let hostileProjectiles = [];
+let hitEffects = [];
 let boss = null;
 let heroArtwork;
 let gameState = "title";
@@ -80,6 +89,8 @@ function resetGame() {
 
   enemies = [];
   projectiles = [];
+  hostileProjectiles = [];
+  hitEffects = [];
   boss = null;
   nextWaveIndex = 0;
   playerHealth = 6;
@@ -111,6 +122,8 @@ function draw() {
     updateEnemies();
     updateBoss();
     updateProjectiles();
+    updateHostileProjectiles();
+    updateHitEffects();
     updateCombat();
   }
 
@@ -121,6 +134,8 @@ function draw() {
   drawEnemies();
   drawBoss();
   drawProjectiles();
+  drawHostileProjectiles();
+  drawHitEffects();
   drawHud();
 
   if (gameState === "title") drawOverlay("THE EMBER KING", "Press ENTER or click to begin", "Defeat five enemy waves, then bring down the king.");
@@ -131,20 +146,25 @@ function draw() {
 function drawScenery() {
   camera.off();
   noStroke();
-  fill("#263b3b");
-  const hillOffset = (camera.x * 0.16) % 390;
-  for (let hillX = -390 - hillOffset; hillX < width + 390; hillX += 390) {
-    triangle(hillX, FLOOR_TOP, hillX + 195, 190 + (abs(hillX) % 70), hillX + 390, FLOOR_TOP);
+  fill("#1b3037");
+  const farOffset = (camera.x * 0.1) % 300;
+  for (let hillX = -300 - farOffset; hillX < width + 300; hillX += 300) {
+    triangle(hillX, FLOOR_TOP, hillX + 150, 210 + (floor(hillX / 300) % 3) * 18, hillX + 300, FLOOR_TOP);
+  }
+
+  fill("#203337");
+  const midOffset = (camera.x * 0.24) % 430;
+  for (let hillX = -430 - midOffset; hillX < width + 430; hillX += 430) {
+    triangle(hillX, FLOOR_TOP, hillX + 215, 285, hillX + 430, FLOOR_TOP);
   }
 
   fill("#17272d");
-  const towerOffset = (camera.x * 0.34) % 760;
-  for (let towerX = -760 - towerOffset; towerX < width + 760; towerX += 760) {
-    rect(towerX + 300, FLOOR_TOP - 150, 78, 150);
-    triangle(towerX + 284, FLOOR_TOP - 150, towerX + 339, FLOOR_TOP - 218, towerX + 394, FLOOR_TOP - 150);
-    fill("#42524a");
-    rect(towerX + 326, FLOOR_TOP - 101, 12, 24);
-    fill("#17272d");
+  const ruinOffset = (camera.x * 0.42) % 620;
+  for (let ruinX = -620 - ruinOffset; ruinX < width + 620; ruinX += 620) {
+    rect(ruinX + 278, FLOOR_TOP - 145, 78, 145);
+    triangle(ruinX + 262, FLOOR_TOP - 145, ruinX + 317, FLOOR_TOP - 213, ruinX + 372, FLOOR_TOP - 145);
+    rect(ruinX + 300, FLOOR_TOP - 98, 13, 22);
+    rect(ruinX + 333, FLOOR_TOP - 98, 13, 22);
   }
 
   camera.on();
@@ -202,17 +222,23 @@ function updateWaves() {
 }
 
 function spawnWave() {
-  const entryX = min(player.x + width * 0.3, BOSS_GATE_X - 180);
-  for (let index = 0; index < 3; index++) {
-    const sprite = new Sprite(entryX + index * 82, FLOOR_TOP - 25, 34, 48);
+  const roster = WAVE_ROSTERS[nextWaveIndex];
+  const entryX = min(player.x + width * 0.3, BOSS_GATE_X - 250);
+  for (let index = 0; index < roster.length; index++) {
+    const enemyType = roster[index];
+    const flying = enemyType === "wisp";
+    const sprite = new Sprite(entryX + index * 70, flying ? FLOOR_TOP - 125 - (index % 2) * 40 : FLOOR_TOP - 25, flying ? 42 : 34, flying ? 38 : 48);
     sprite.collider = "none";
     sprite.visible = false;
     enemies.push({
       sprite,
-      healthValue: 3,
-      moveSpeed: 1.15 + index * 0.12,
-      attackCooldown: 0,
-      colorValue: index === 1 ? "#92a77a" : "#b3b8a0"
+      enemyType,
+      healthValue: enemyType === "raider" ? 4 : 3,
+      moveSpeed: enemyType === "wisp" ? 1.55 : enemyType === "hexer" ? 0.9 : 1.35,
+      attackCooldown: random(35, 90),
+      floatOffset: random(TWO_PI),
+      hitFlash: 0,
+      colorValue: enemyType === "wisp" ? "#8de0d4" : enemyType === "hexer" ? "#bd8be8" : "#b3b8a0"
     });
   }
   nextWaveIndex++;
@@ -222,19 +248,34 @@ function spawnBoss() {
   const sprite = new Sprite(BOSS_X, FLOOR_TOP - 52, 94, 100);
   sprite.collider = "none";
   sprite.visible = false;
-  boss = { sprite, healthValue: 42, moveSpeed: 0.72, attackCooldown: 0 };
+  boss = { sprite, healthValue: 135, maxHealth: 135, moveSpeed: 0.8, attackCooldown: 80, hitFlash: 0 };
 }
 
 function updateEnemies() {
   for (let index = enemies.length - 1; index >= 0; index--) {
     const enemy = enemies[index];
     const gap = player.x - enemy.sprite.x;
-    if (abs(gap) < 540) enemy.sprite.x += Math.sign(gap) * enemy.moveSpeed;
-    enemy.sprite.y = FLOOR_TOP - enemy.sprite.h / 2;
-    if (enemy.attackCooldown > 0) enemy.attackCooldown--;
+    if (enemy.enemyType === "raider") {
+      if (abs(gap) < 700) enemy.sprite.x += Math.sign(gap) * enemy.moveSpeed;
+      enemy.sprite.y = FLOOR_TOP - enemy.sprite.h / 2;
+    } else if (enemy.enemyType === "hexer") {
+      if (abs(gap) > 310) enemy.sprite.x += Math.sign(gap) * enemy.moveSpeed;
+      else if (abs(gap) < 205) enemy.sprite.x -= Math.sign(gap) * enemy.moveSpeed;
+      enemy.sprite.y = FLOOR_TOP - enemy.sprite.h / 2;
+    } else {
+      if (abs(gap) < 850) enemy.sprite.x += Math.sign(gap) * enemy.moveSpeed;
+      enemy.sprite.y = FLOOR_TOP - 145 + sin(frameCount * 0.07 + enemy.floatOffset) * 32;
+    }
+
+    if (enemy.hitFlash > 0) enemy.hitFlash--;
     if (boxesOverlap(player.x, player.y, player.w * 0.72, player.h * 0.82, enemy.sprite.x, enemy.sprite.y, enemy.sprite.w * 0.78, enemy.sprite.h * 0.86)) {
       hurtPlayer(1, enemy.sprite.x);
-      enemy.attackCooldown = 50;
+    }
+
+    if (enemy.attackCooldown > 0) enemy.attackCooldown--;
+    if (enemy.enemyType !== "raider" && enemy.attackCooldown === 0 && abs(gap) < 650) {
+      fireHostileProjectile(enemy.sprite.x, enemy.sprite.y, enemy.enemyType === "wisp" ? 5.2 : 4.5, enemy.enemyType === "wisp" ? "#8de0d4" : "#cf8cff", 1);
+      enemy.attackCooldown = enemy.enemyType === "wisp" ? random(100, 145) : random(75, 110);
     }
   }
 }
@@ -242,13 +283,38 @@ function updateEnemies() {
 function updateBoss() {
   if (!boss) return;
   const gap = player.x - boss.sprite.x;
+  const bossPhase = boss.healthValue <= 45 ? 3 : boss.healthValue <= 90 ? 2 : 1;
+  boss.moveSpeed = bossPhase === 3 ? 1.45 : bossPhase === 2 ? 1.05 : 0.8;
   if (abs(gap) < 760) boss.sprite.x += Math.sign(gap) * boss.moveSpeed;
   boss.sprite.y = FLOOR_TOP - boss.sprite.h / 2;
+  if (boss.hitFlash > 0) boss.hitFlash--;
   if (boss.attackCooldown > 0) boss.attackCooldown--;
+  if (boss.attackCooldown === 0) {
+    const shotCount = bossPhase === 3 ? 7 : bossPhase === 2 ? 5 : 3;
+    const spread = bossPhase === 3 ? 0.18 : 0.16;
+    for (let shotIndex = 0; shotIndex < shotCount; shotIndex++) {
+      const spreadAngle = (shotIndex - (shotCount - 1) / 2) * spread;
+      fireHostileProjectile(boss.sprite.x - 28, boss.sprite.y - 20, bossPhase === 3 ? 7 : 6, "#ff875e", 1, spreadAngle);
+    }
+    boss.attackCooldown = bossPhase === 3 ? 58 : bossPhase === 2 ? 74 : 94;
+  }
   if (boxesOverlap(player.x, player.y, player.w * 0.72, player.h * 0.82, boss.sprite.x, boss.sprite.y, boss.sprite.w * 0.72, boss.sprite.h * 0.82)) {
     hurtPlayer(2, boss.sprite.x);
-    boss.attackCooldown = 65;
   }
+}
+
+function fireHostileProjectile(originX, originY, speed, color, damage, spreadAngle = 0) {
+  const aimAngle = atan2(player.y - originY, player.x - originX) + spreadAngle;
+  hostileProjectiles.push({
+    posX: originX,
+    posY: originY,
+    speedX: cos(aimAngle) * speed,
+    speedY: sin(aimAngle) * speed,
+    colorValue: color,
+    damageValue: damage,
+    radiusValue: 7,
+    remainingFrames: 160
+  });
 }
 
 function fireWeapon() {
@@ -276,7 +342,10 @@ function updateProjectiles() {
       const enemy = enemies[enemyIndex];
       if (boxesOverlap(projectile.posX, projectile.posY, projectile.radiusValue * 2, projectile.radiusValue * 2, enemy.sprite.x, enemy.sprite.y, enemy.sprite.w, enemy.sprite.h)) {
         enemy.healthValue -= projectile.damageValue;
+        enemy.hitFlash = 7;
+        createHitEffect(projectile.posX, projectile.posY, projectile.colorValue, 9);
         if (enemy.healthValue <= 0) {
+          createHitEffect(enemy.sprite.x, enemy.sprite.y, enemy.colorValue, 16);
           enemy.sprite.remove();
           enemies.splice(enemyIndex, 1);
         }
@@ -287,8 +356,11 @@ function updateProjectiles() {
 
     if (!hitTarget && boss && boxesOverlap(projectile.posX, projectile.posY, projectile.radiusValue * 2, projectile.radiusValue * 2, boss.sprite.x, boss.sprite.y, boss.sprite.w, boss.sprite.h)) {
       boss.healthValue -= projectile.damageValue;
+      boss.hitFlash = 7;
+      createHitEffect(projectile.posX, projectile.posY, projectile.colorValue, 12);
       hitTarget = true;
       if (boss.healthValue <= 0) {
+        createHitEffect(boss.sprite.x, boss.sprite.y, "#ffbd5b", 36);
         boss.sprite.remove();
         boss = null;
         gameState = "won";
@@ -301,6 +373,52 @@ function updateProjectiles() {
   }
 }
 
+function updateHostileProjectiles() {
+  for (let index = hostileProjectiles.length - 1; index >= 0; index--) {
+    const projectile = hostileProjectiles[index];
+    projectile.posX += projectile.speedX;
+    projectile.posY += projectile.speedY;
+    projectile.remainingFrames--;
+    const hitsPlayer = boxesOverlap(projectile.posX, projectile.posY, projectile.radiusValue * 2, projectile.radiusValue * 2, player.x, player.y, player.w * 0.8, player.h * 0.85);
+    if (hitsPlayer) {
+      hurtPlayer(projectile.damageValue, projectile.posX);
+      createHitEffect(projectile.posX, projectile.posY, projectile.colorValue, 7);
+    }
+    if (hitsPlayer || projectile.remainingFrames <= 0 || abs(projectile.posX - player.x) > width * 1.5 || projectile.posY < -50 || projectile.posY > height + 50) {
+      hostileProjectiles.splice(index, 1);
+    }
+  }
+}
+
+function createHitEffect(effectX, effectY, color, particleCount) {
+  for (let index = 0; index < particleCount; index++) {
+    const angle = random(TWO_PI);
+    const speed = random(1.2, 4.8);
+    hitEffects.push({
+      posX: effectX,
+      posY: effectY,
+      speedX: cos(angle) * speed,
+      speedY: sin(angle) * speed,
+      colorValue: color,
+      lifeValue: random(12, 24),
+      maxLife: 24,
+      radiusValue: random(2, 5)
+    });
+  }
+}
+
+function updateHitEffects() {
+  for (let index = hitEffects.length - 1; index >= 0; index--) {
+    const effect = hitEffects[index];
+    effect.posX += effect.speedX;
+    effect.posY += effect.speedY;
+    effect.speedX *= 0.92;
+    effect.speedY *= 0.92;
+    effect.lifeValue--;
+    if (effect.lifeValue <= 0) hitEffects.splice(index, 1);
+  }
+}
+
 function updateCombat() {
   if (playerHealth <= 0) gameState = "lost";
 }
@@ -308,6 +426,7 @@ function updateCombat() {
 function hurtPlayer(damage, attackerX) {
   if (damageCooldown > 0) return;
   playerHealth -= damage;
+  createHitEffect(player.x, player.y, "#ff5d52", 10);
   damageCooldown = 55;
   player.vel.x = player.x < attackerX ? -4 : 4;
   player.vel.y = -4;
@@ -322,17 +441,39 @@ function drawEnemies() {
     push();
     translate(enemy.sprite.x, enemy.sprite.y);
     noStroke();
-    fill("#27312c");
-    ellipse(0, 0, 34, 40);
-    fill(enemy.colorValue);
-    rect(-12, -9, 24, 25, 4);
-    fill("#d6bd8b");
-    ellipse(0, -19, 20, 17);
-    fill("#a3443c");
-    rect(-15, -29, 30, 7, 2);
-    fill("#ffdb8d");
-    rect(-5, -20, 3, 3);
-    rect(3, -20, 3, 3);
+    if (enemy.hitFlash > 0) fill("#fff4d8");
+    else fill(enemy.colorValue);
+
+    if (enemy.enemyType === "wisp") {
+      const flap = sin(frameCount * 0.25 + enemy.floatOffset) * 8;
+      ellipse(0, 0, 25, 28);
+      ellipse(-18, -flap, 18, 11);
+      ellipse(18, flap, 18, 11);
+      fill("#e9fff0");
+      ellipse(-5, -3, 5, 7);
+      ellipse(5, -3, 5, 7);
+    } else if (enemy.enemyType === "hexer") {
+      triangle(-17, 15, 0, -25, 17, 15);
+      ellipse(0, -13, 20, 20);
+      fill("#f4d0ff");
+      ellipse(-5, -14, 4, 6);
+      ellipse(5, -14, 4, 6);
+      stroke("#e4b7ff");
+      strokeWeight(3);
+      line(17, -10, 23, 13);
+    } else {
+      fill("#27312c");
+      ellipse(0, 0, 34, 40);
+      fill(enemy.hitFlash > 0 ? "#fff4d8" : enemy.colorValue);
+      rect(-12, -9, 24, 25, 4);
+      fill("#d6bd8b");
+      ellipse(0, -19, 20, 17);
+      fill("#a3443c");
+      rect(-15, -29, 30, 7, 2);
+      fill("#ffdb8d");
+      rect(-5, -20, 3, 3);
+      rect(3, -20, 3, 3);
+    }
     pop();
   }
 }
@@ -342,7 +483,7 @@ function drawBoss() {
   push();
   translate(boss.sprite.x, boss.sprite.y);
   noStroke();
-  fill("#512f36");
+  fill(boss.hitFlash > 0 ? "#fff0c9" : "#512f36");
   ellipse(0, 0, 91, 94);
   fill("#8b3940");
   rect(-35, -29, 70, 61, 10);
@@ -364,6 +505,25 @@ function drawProjectiles() {
     circle(projectile.posX, projectile.posY, projectile.radiusValue * 2);
     fill("#fff2c2");
     circle(projectile.posX, projectile.posY, projectile.radiusValue);
+  }
+}
+
+function drawHostileProjectiles() {
+  noStroke();
+  for (const projectile of hostileProjectiles) {
+    fill(projectile.colorValue);
+    circle(projectile.posX, projectile.posY, projectile.radiusValue * 2);
+    fill("#fff0d6");
+    circle(projectile.posX, projectile.posY, projectile.radiusValue);
+  }
+}
+
+function drawHitEffects() {
+  noStroke();
+  for (const effect of hitEffects) {
+    const alpha = 255 * effect.lifeValue / effect.maxLife;
+    fill(red(effect.colorValue), green(effect.colorValue), blue(effect.colorValue), alpha);
+    circle(effect.posX, effect.posY, effect.radiusValue * 2 * effect.lifeValue / effect.maxLife);
   }
 }
 
@@ -390,7 +550,9 @@ function drawHud() {
     fill("#6f3038");
     rect(width - barWidth - 10, 28, barWidth - 16, 13, 3);
     fill("#ef795f");
-    rect(width - barWidth - 10, 28, (barWidth - 16) * max(0, boss.healthValue) / 42, 13, 3);
+    rect(width - barWidth - 10, 28, (barWidth - 16) * max(0, boss.healthValue) / boss.maxHealth, 13, 3);
+    fill("#e8e2d3");
+    text(`PHASE ${boss.healthValue <= 45 ? 3 : boss.healthValue <= 90 ? 2 : 1}`, width - barWidth - 10, 67);
   }
   camera.on();
 }
