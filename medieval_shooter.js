@@ -534,6 +534,8 @@ function hurtPlayer(damage, attackerX) {
   if (shieldFrames > 0 || damageCooldown > 0) return;
   playerHealth -= damage;
   createHitEffect(player.x, player.y, "#ff5d52", 10);
+  hurtFlashFrames = 16;
+  playTone(120, 0.18, "sawtooth");
   damageCooldown = 55;
   player.vel.x = player.x < attackerX ? -4 : 4;
   player.vel.y = -4;
@@ -548,6 +550,12 @@ function drawEnemies() {
     push();
     translate(enemy.sprite.x, enemy.sprite.y);
     noStroke();
+    if (enemy.enemyType !== "raider" && enemy.attackCooldown <= 24 && abs(player.x - enemy.sprite.x) < 650) {
+      stroke(enemy.enemyType === "wisp" ? "#9ef4e8" : "#e4b7ff");
+      strokeWeight(2);
+      line(0, 0, player.x - enemy.sprite.x, player.y - enemy.sprite.y);
+      noStroke();
+    }
     if (enemy.hitFlash > 0) fill("#fff4d8");
     else fill(enemy.colorValue);
 
@@ -589,6 +597,11 @@ function drawBoss() {
   if (!boss) return;
   push();
   translate(boss.sprite.x, boss.sprite.y);
+  if (boss.attackCooldown <= 28) {
+    stroke("#ff815e");
+    strokeWeight(4);
+    line(-28, -20, player.x - boss.sprite.x, player.y - 20 - boss.sprite.y);
+  }
   noStroke();
   fill(boss.hitFlash > 0 ? "#fff0c9" : "#512f36");
   ellipse(0, 0, 91, 94);
