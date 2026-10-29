@@ -34,7 +34,7 @@ let touchInput = { left: false, right: false, jump: false, fire: false };
 function setup() {
   const gameCanvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   document.getElementById("gameCanvas").appendChild(gameCanvas);
-  world.gravity.y = 0.8;
+  world.gravity.y = 32;
   textFont("monospace");
   createHeroArtwork();
   buildLevel();
@@ -105,11 +105,6 @@ function resetGame() {
 
 function draw() {
   background("#17242b");
-  camera.x = constrain(player.x, width / 2, LEVEL_LENGTH - width / 2);
-  camera.y = height / 2;
-
-  drawScenery();
-
   if (gameState === "playing") {
     updatePlayer();
     updateWaves();
@@ -118,6 +113,10 @@ function draw() {
     updateProjectiles();
     updateCombat();
   }
+
+  camera.x = constrain(player.x, width / 2, LEVEL_LENGTH - width / 2);
+  camera.y = height / 2;
+  drawScenery();
 
   drawEnemies();
   drawBoss();
@@ -130,14 +129,17 @@ function draw() {
 }
 
 function drawScenery() {
+  camera.off();
   noStroke();
   fill("#263b3b");
-  for (let hillX = floor(camera.x / 390) * 390 - 780; hillX < camera.x + width; hillX += 390) {
+  const hillOffset = (camera.x * 0.16) % 390;
+  for (let hillX = -390 - hillOffset; hillX < width + 390; hillX += 390) {
     triangle(hillX, FLOOR_TOP, hillX + 195, 190 + (abs(hillX) % 70), hillX + 390, FLOOR_TOP);
   }
 
   fill("#17272d");
-  for (let towerX = floor(camera.x / 760) * 760 - 760; towerX < camera.x + width; towerX += 760) {
+  const towerOffset = (camera.x * 0.34) % 760;
+  for (let towerX = -760 - towerOffset; towerX < width + 760; towerX += 760) {
     rect(towerX + 300, FLOOR_TOP - 150, 78, 150);
     triangle(towerX + 284, FLOOR_TOP - 150, towerX + 339, FLOOR_TOP - 218, towerX + 394, FLOOR_TOP - 150);
     fill("#42524a");
@@ -145,10 +147,7 @@ function drawScenery() {
     fill("#17272d");
   }
 
-  fill("#72836d");
-  for (let detailX = floor(camera.x / 100) * 100 - 200; detailX < camera.x + width; detailX += 100) {
-    rect(detailX, FLOOR_TOP + 8, 42, 3);
-  }
+  camera.on();
 }
 
 function updatePlayer() {
@@ -160,16 +159,17 @@ function updatePlayer() {
   if (moveDirection !== 0) {
     playerFacing = moveDirection;
     player.vel.x = moveDirection * 4.3;
+    player.mirror.x = playerFacing < 0;
   } else {
     player.vel.x = 0;
   }
 
   grounded = false;
   for (const floorSegment of floorSegments) {
-    if (player.collides(floorSegment)) grounded = true;
+    if (player.colliding(floorSegment)) grounded = true;
   }
 
-  if (jumpDown && !jumpWasDown && grounded) player.vel.y = -13;
+  if (jumpDown && !jumpWasDown && grounded) player.vel.y = -10;
   jumpWasDown = jumpDown;
 
   const movementLimit = nextWaveIndex === WAVE_CHECKPOINTS.length && enemies.length > 0
@@ -202,7 +202,7 @@ function updateWaves() {
 }
 
 function spawnWave() {
-  const entryX = min(player.x + width * 0.56, BOSS_GATE_X - 180);
+  const entryX = min(player.x + width * 0.3, BOSS_GATE_X - 180);
   for (let index = 0; index < 3; index++) {
     const sprite = new Sprite(entryX + index * 82, FLOOR_TOP - 25, 34, 48);
     sprite.collider = "none";
@@ -378,7 +378,7 @@ function drawHud() {
   fill("#e8e2d3");
   textSize(12);
   text(`WEAPON  ${WEAPONS[selectedWeapon].name}`, 28, 61);
-  const progressText = boss ? "FINAL BOSS" : `WAVE ${min(nextWaveIndex + 1, WAVE_CHECKPOINTS.length)} / ${WAVE_CHECKPOINTS.length}`;
+  const progressText = boss ? "FINAL BOSS" : `WAVE ${max(1, nextWaveIndex)} / ${WAVE_CHECKPOINTS.length}`;
   text(progressText, 28, 80);
 
   if (boss) {
