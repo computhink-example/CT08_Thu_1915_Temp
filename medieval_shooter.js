@@ -661,7 +661,7 @@ function drawHud() {
   camera.off();
   noStroke();
   fill("#111b20e8");
-  rect(14, 14, 360, 98, 5);
+  rect(14, 14, 360, 124, 5);
   fill("#f0d18a");
   textSize(14);
   text(`VITALITY  ${"◆ ".repeat(max(0, playerHealth))}`, 28, 38);
@@ -675,6 +675,16 @@ function drawHud() {
     : shieldCooldown > 0 ? `COOLDOWN  ${ceil(shieldCooldown / 60)}s` : "READY  [E]";
   fill(shieldFrames > 0 ? "#8fe9ff" : shieldCooldown > 0 ? "#a7afa7" : "#a6e09b");
   text(`SHIELD  ${shieldStatus}`, 28, 101);
+  fill("#e8e2d3");
+  text(`ENEMIES  ${enemies.length}`, 28, 120);
+
+  if (hurtFlashFrames > 0) {
+    noFill();
+    stroke(255, 65, 65, 150 * hurtFlashFrames / 16);
+    strokeWeight(12);
+    rect(4, 4, width - 8, height - 8, 8);
+    noStroke();
+  }
 
   if (boss) {
     const barWidth = 250;
@@ -689,6 +699,20 @@ function drawHud() {
     fill("#e8e2d3");
     text(`PHASE ${boss.healthValue <= 45 ? 3 : boss.healthValue <= 90 ? 2 : 1}`, width - barWidth - 10, 67);
   }
+  camera.on();
+}
+
+function drawWaveBanner() {
+  if (waveAnnouncementFrames <= 0 || gameState === "paused" || gameState === "upgrade") return;
+  camera.off();
+  textAlign(CENTER, CENTER);
+  noStroke();
+  fill("#10191cdd");
+  rect(width / 2 - 180, 104, 360, 42, 4);
+  fill("#efbd58");
+  textSize(18);
+  text(waveAnnouncementText, width / 2, 125);
+  textAlign(LEFT, BASELINE);
   camera.on();
 }
 
