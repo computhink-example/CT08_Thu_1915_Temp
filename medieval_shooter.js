@@ -258,6 +258,7 @@ function updatePlayer() {
   if (damageCooldown > 0) damageCooldown--;
   if (shieldFrames > 0) shieldFrames--;
   if (shieldCooldown > 0) shieldCooldown--;
+  if (hurtFlashFrames > 0) hurtFlashFrames--;
 
   const firing = (mouseIsPressed && mouseButton === LEFT) || touchInput.fire;
   if (firing && shotCooldown === 0) fireWeapon();
@@ -405,12 +406,13 @@ function fireWeapon() {
     posY: originY,
     speedX: cos(shotAngle) * weapon.speed,
     speedY: sin(shotAngle) * weapon.speed,
-    damageValue: weapon.damage,
+    damageValue: weapon.damage + weaponDamageBonus,
     colorValue: weapon.color,
     radiusValue: weapon.radius,
     remainingFrames: 100
   });
   shotCooldown = weapon.cooldown;
+  playTone([640, 430, 250][selectedWeapon], 0.055, selectedWeapon === 2 ? "sawtooth" : "triangle");
 }
 
 function getTargetInFacingDirection() {
@@ -445,6 +447,7 @@ function updateProjectiles() {
         createHitEffect(projectile.posX, projectile.posY, projectile.colorValue, 9);
         if (enemy.healthValue <= 0) {
           createHitEffect(enemy.sprite.x, enemy.sprite.y, enemy.colorValue, 16);
+          playTone(240, 0.09, "sine");
           enemy.sprite.remove();
           enemies.splice(enemyIndex, 1);
         }
