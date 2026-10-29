@@ -450,7 +450,12 @@ function updateHitEffects() {
 }
 
 function updateCombat() {
-  if (playerHealth <= 0) gameState = "lost";
+  if (playerHealth <= 0 && gameState === "playing") {
+    gameState = "lost";
+    player.vel.x = 0;
+    player.vel.y = 0;
+    player.collider = "none";
+  }
 }
 
 function hurtPlayer(damage, attackerX) {
