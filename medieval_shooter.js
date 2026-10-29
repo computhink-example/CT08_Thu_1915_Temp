@@ -278,7 +278,7 @@ function updateEnemies() {
     }
 
     if (enemy.attackCooldown > 0) enemy.attackCooldown--;
-    if (enemy.enemyType !== "raider" && enemy.attackCooldown === 0 && abs(gap) < 650) {
+    if (enemy.enemyType !== "raider" && enemy.attackCooldown <= 0 && abs(gap) < 650) {
       fireHostileProjectile(enemy.sprite.x, enemy.sprite.y, enemy.enemyType === "wisp" ? 5.2 : 4.5, enemy.enemyType === "wisp" ? "#8de0d4" : "#cf8cff", 1);
       enemy.attackCooldown = enemy.enemyType === "wisp" ? random(100, 145) : random(75, 110);
     }
